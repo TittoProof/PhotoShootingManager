@@ -6,10 +6,14 @@
  * and for swagger http://localhost:8080/swagger-ui.html
  */
 package com.aegidea.photoshootingmanager;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 /**
  *
@@ -27,6 +31,16 @@ public class App {
     public void run(String... args) throws Exception {
         logger.info("Application is running");
 
+    }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setSkipNullEnabled(true); // if something is null, skip
+
+        // Components should define specific behaviour as needed
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper;
     }
 
 }

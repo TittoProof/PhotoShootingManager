@@ -39,8 +39,10 @@ public class User implements Serializable {
     private String lastName;
     
     @Email
+    @NotNull
     private String email;
     
+    @NotNull
     private String mobileNumber;
     
     @OneToMany(mappedBy = "contactData", cascade = CascadeType.ALL,  orphanRemoval = false)
