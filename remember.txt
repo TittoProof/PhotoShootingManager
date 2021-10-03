@@ -1,0 +1,1 @@
+enumerated string non è performante
