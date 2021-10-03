@@ -1,14 +1,14 @@
 package com.aegidea.photoshootingmanager.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -45,8 +45,9 @@ public class User implements Serializable {
     @NotNull
     private String mobileNumber;
     
-    @OneToMany(mappedBy = "contactData", cascade = CascadeType.ALL,  orphanRemoval = false)
-    private List<Order> orders = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_contactData")
+    private Order order;
 
     public User() {
     }
@@ -91,15 +92,13 @@ public class User implements Serializable {
         this.mobileNumber = mobileNumber;
     }
 
-    public List<Order> getOrders() {
-        return orders;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
+    public void setOrder(Order order) {
+        this.order = order;
     }
-
     
-
     
 }

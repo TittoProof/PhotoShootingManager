@@ -4,6 +4,10 @@ import com.aegidea.photoshootingmanager.dto.PhotographerDTO;
 import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.service.PhotographerService;
 import com.codahale.metrics.annotation.Timed;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  *
@@ -20,6 +26,7 @@ import org.modelmapper.ModelMapper;
  */
 @RestController
 @RequestMapping("/admin")
+@Api(tags = "Admin operations")
 public class OperatorController {
     
     private final static Logger LOG = LoggerFactory.getLogger(OperatorController.class);
@@ -28,11 +35,16 @@ public class OperatorController {
     private PhotographerService photographerService;
     
     @Autowired
-    private ModelMapper modelMapper;
-    
+    private ModelMapper modelMapper;   
     
     @Timed
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "/init", method = RequestMethod.GET)
+    @ApiOperation(value = "Init database with some photographers")
+        @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected"),
+        @ApiResponse(code = 201, message = "created")
+    })
     public List<PhotographerDTO> populatePhotographers() {
         LOG.info("Init the photographer DB...");
         List<Photographer> results = this.photographerService.populatePhotographers();

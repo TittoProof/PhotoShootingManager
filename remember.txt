@@ -1,1 +1,6 @@
 enumerated string non è performante
+
+
+evoluzione: diversi servizi, un utente può registrarsi ad un servizio specifico.
+
+
