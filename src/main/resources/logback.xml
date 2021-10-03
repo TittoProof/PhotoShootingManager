@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%rEx{full,
+          java.lang.reflect.Method,
+          org.apache.catalina,
+          org.springframework.aop,
+          org.springframework.security,
+          org.springframework.transaction,
+          org.springframework.web,
+          sun.reflect,
+          net.sf.cglib,
+          com.sun.xml.internal,
+          java.util.concurrent
+        }</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.aegidea" level="debug" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<root level="warn">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
