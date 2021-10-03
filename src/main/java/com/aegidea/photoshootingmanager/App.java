@@ -3,7 +3,6 @@
  * AVAILABLE COMMANDS:
  * - mvn spring-boot:run (run the project in maven)
  * - mvn verify (execute the integration test - build the project, start a tomcat container, deploy the project and perform the integration test against it)
- * after start, try to launch http://localhost:8080/ping
  * and for swagger http://localhost:8080/swagger-ui.html
  */
 package com.aegidea.photoshootingmanager;

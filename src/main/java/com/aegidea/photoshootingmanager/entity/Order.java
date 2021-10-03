@@ -13,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
@@ -34,10 +33,13 @@ public class Order implements Serializable {
     @Id
     private String id;
     
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User contactData;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "photographer_id")
+    private Photographer assignedTo;
     
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -52,5 +54,73 @@ public class Order implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    public Order() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public User getContactData() {
+        return contactData;
+    }
+
+    public void setContactData(User contactData) {
+        this.contactData = contactData;
+    }
+
+    public Photographer getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(Photographer assignedTo) {
+        this.assignedTo = assignedTo;
+    }
+
+    public PhotoType getPhotoType() {
+        return photoType;
+    }
+
+    public void setPhotoType(PhotoType photoType) {
+        this.photoType = photoType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getLogisticInfo() {
+        return logisticInfo;
+    }
+
+    public void setLogisticInfo(String logisticInfo) {
+        this.logisticInfo = logisticInfo;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+    
 
 }
