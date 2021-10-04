@@ -3,6 +3,7 @@ package com.aegidea.photoshootingmanager.controller;
 import com.aegidea.photoshootingmanager.dto.CreateOrderDTO;
 import com.aegidea.photoshootingmanager.dto.OrderDTO;
 import com.aegidea.photoshootingmanager.dto.PhotographerDTO;
+import com.aegidea.photoshootingmanager.dto.ScheduleOrderDTO;
 import com.aegidea.photoshootingmanager.entity.Order;
 import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.service.OrderService;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,6 +58,22 @@ public class OrderController {
         Order toBeCreated = this.modelMapper.map(createOrderDto, Order.class);
         Order result = this.orderService.createNewOrder(toBeCreated);
         return this.modelMapper.map(result, OrderDTO.class);
+    }
+    
+    
+    @Timed
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(path = "/orders/{orderId}", method = RequestMethod.PUT)
+    @ApiOperation(value = "Schedule order")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected")
+        ,
+        @ApiResponse(code = 200, message = "updated")
+    })
+    public void scheduleOrder(@PathVariable("orderId") String orderId, @Valid @RequestBody ScheduleOrderDTO scheduleOrderDto) {
+        LOG.info("Start scheduling order {}.", orderId);
+        this.orderService.scheduleOrder(orderId, scheduleOrderDto.getDateTime());
+        
     }
 
 }

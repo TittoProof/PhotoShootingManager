@@ -2,6 +2,8 @@ package com.aegidea.photoshootingmanager.controller;
 
 import com.aegidea.photoshootingmanager.configuration.Config;
 import com.aegidea.photoshootingmanager.dto.OrderDTO;
+import com.aegidea.photoshootingmanager.entity.Order;
+import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.enums.PhotoType;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
@@ -12,10 +14,13 @@ import com.jayway.restassured.authentication.PreemptiveBasicAuthScheme;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 import java.time.LocalDateTime;
+import java.time.Month;
+import javax.transaction.Transactional;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,6 +97,37 @@ public class OrderControllerEndToEndTest {
 
         given().log().all().body(newOrder.toString()).contentType(ContentType.JSON).expect().when().post("/manager/orders").then().assertThat().statusCode(400);
 
+    }
+    
+    @Test
+    public void scheduleOrderTest() throws JSONException {
+
+        User homer = new User();
+        homer.setEmail("homer@email.com");
+        homer.setFirstName("homer");
+        homer.setLastName("Simpson");
+        homer.setMobileNumber("+66 666");
+        
+        Order order = new Order();
+        order.setLogisticInfo("Some logistic infos");
+        order.setTitle("very funny title");
+        order.setPhotoType(PhotoType.FOOD);
+        order.setStatus(OrderStatus.UNSCHEDULED);
+        homer.setOrder(order);
+        
+        this.orderRepository.save(order);
+        
+        assertEquals(1, this.orderRepository.count());
+        
+        JSONObject scheduleOrder = new JSONObject();
+        scheduleOrder.put("dateTime", "2021-03-04T12:00:00Z");
+        
+        given().log().all().pathParam("orderId", order.getId()).body(scheduleOrder.toString()).contentType(ContentType.JSON).expect().when().put("/manager/orders/{orderId}").then().assertThat().statusCode(200);
+
+        Order fromDb = this.orderRepository.findById(order.getId()).orElse(null);
+        assertNotNull(fromDb.getDateTime());
+        assertEquals(OrderStatus.PENDING, fromDb.getStatus()); 
+        
     }
 
 }

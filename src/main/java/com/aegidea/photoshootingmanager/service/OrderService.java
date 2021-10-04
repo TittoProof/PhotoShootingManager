@@ -1,11 +1,13 @@
 package com.aegidea.photoshootingmanager.service;
 
-import com.aegidea.photoshootingmanager.dto.CreateOrderDTO;
 import com.aegidea.photoshootingmanager.entity.Order;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
+import com.aegidea.photoshootingmanager.exception.OrderNotFoundException;
+import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
+import io.micrometer.core.instrument.util.StringUtils;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import javax.transaction.Transactional;
@@ -64,13 +66,28 @@ public class OrderService {
     }
     
     /**
-     * Set an order to PENDING and populate a current dateTime.
+     * Set an order to PENDING and populate a valid dateTime.
      * 
+     * @param orderId
+     * @param date
+     * @return 
      * @see R2
      * @since 1.0
      */
-    public void scheduleOrder() {
-        throw new UnsupportedOperationException();
+    public Order scheduleOrder(String orderId, LocalDateTime date) {
+        if(StringUtils.isEmpty(orderId) || date == null) {
+            LOG.info("order and date cannot be null. Impossible to schedule order");
+            throw new ScheduleOrderException("Cannot schedule an Order, invalid datas");
+        } else if (!isDateTimeValid(date)) {
+            LOG.info("date must be in business time. Impossible to schedule order");
+            throw new ScheduleOrderException("Cannot schedule an Order, not in business time");
+        } else {
+            LOG.info("Scheduling order id#{} at {}", orderId, date.toString());
+            Order fromDb = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+            fromDb.setDateTime(date);
+            fromDb.setStatus(OrderStatus.PENDING);
+            return this.orderRepository.save(fromDb);
+        }
     }
     
     public void assignOrderToPhotographer() {

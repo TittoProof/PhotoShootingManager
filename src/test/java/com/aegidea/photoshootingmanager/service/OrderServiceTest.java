@@ -5,6 +5,7 @@ import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.enums.PhotoType;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
+import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
 import com.aegidea.photoshootingmanager.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -81,7 +82,28 @@ public class OrderServiceTest {
     
     @Test
     public void createNewUnscheduledOrderTest() {
-        
+        this.order.setDateTime(null);
+        Order created = this.orderService.createNewOrder(this.order);
+        assertEquals(OrderStatus.UNSCHEDULED, created.getStatus());
+    }
+    
+    @Test
+    public void scheduleOrderTest() {
+        LocalDateTime date =  LocalDateTime.of(2021, Month.MARCH, 4, 12, 0);
+        this.order.setDateTime(null);
+        Order unscheduled = this.orderService.createNewOrder(this.order);        
+        this.orderService.scheduleOrder(unscheduled.getId(), date);
+        Order fromDb = this.orderRepository.findById(unscheduled.getId()).orElse(null);
+        assertEquals(date, fromDb.getDateTime());
+        assertEquals(OrderStatus.PENDING, fromDb.getStatus());      
+    }
+    
+    @Test(expected=ScheduleOrderException.class)
+    public void scheduleOrderNotBusinessTimeTest() {
+        LocalDateTime notBusinessTime =  LocalDateTime.of(2021, Month.MARCH, 4, 22, 0);
+        this.order.setDateTime(null);
+        Order unscheduled = this.orderService.createNewOrder(this.order);       
+        this.orderService.scheduleOrder(unscheduled.getId(), notBusinessTime);           
     }
     
     @Test
