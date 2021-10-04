@@ -51,7 +51,7 @@ public class OrderController {
         ,
         @ApiResponse(code = 201, message = "created")
     })
-    public OrderDTO populatePhotographers(@Valid @RequestBody CreateOrderDTO createOrderDto) {
+    public OrderDTO createNewOrder(@Valid @RequestBody CreateOrderDTO createOrderDto) {
         LOG.info("Start creating a new order.");
         Order toBeCreated = this.modelMapper.map(createOrderDto, Order.class);
         Order result = this.orderService.createNewOrder(toBeCreated);

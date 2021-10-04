@@ -24,7 +24,9 @@ public class OrderDTO {
     
     private PhotoType photoType;
     
-    private OrderStatus orderStatus;
+    private OrderStatus status;
+    
+    private UserDTO contactData;
 
     public OrderDTO() {
     }
@@ -61,12 +63,20 @@ public class OrderDTO {
         this.photoType = photoType;
     }
 
-    public OrderStatus getOrderStatus() {
-        return orderStatus;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setStatus(OrderStatus orderStatus) {
+        this.status = orderStatus;
+    }
+
+    public UserDTO getContactData() {
+        return contactData;
+    }
+
+    public void setContactData(UserDTO contactData) {
+        this.contactData = contactData;
     }
     
     
