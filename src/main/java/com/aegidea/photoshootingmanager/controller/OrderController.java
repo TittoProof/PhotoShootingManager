@@ -75,5 +75,20 @@ public class OrderController {
         this.orderService.scheduleOrder(orderId, scheduleOrderDto.getDateTime());
         
     }
+    
+    @Timed
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(path = "/orders/{orderId}/cancel", method = RequestMethod.POST)
+    @ApiOperation(value = "Cancel an order")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected")
+        ,
+        @ApiResponse(code = 200, message = "cancelled")
+    })
+    public void cancelOrder(@PathVariable("orderId") String orderId) {
+        LOG.info("Start cancelling order {}.", orderId);
+        this.orderService.cancelOrder(orderId);
+        
+    }
 
 }

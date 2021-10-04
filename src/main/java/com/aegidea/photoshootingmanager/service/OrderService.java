@@ -3,6 +3,7 @@ package com.aegidea.photoshootingmanager.service;
 import com.aegidea.photoshootingmanager.entity.Order;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
+import com.aegidea.photoshootingmanager.exception.OrderCancelledException;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
 import com.aegidea.photoshootingmanager.exception.OrderNotFoundException;
 import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
@@ -74,7 +75,7 @@ public class OrderService {
      * @see R2
      * @since 1.0
      */
-    public Order scheduleOrder(String orderId, LocalDateTime date) {
+    public Order scheduleOrder(String orderId, LocalDateTime date) {        
         if(StringUtils.isEmpty(orderId) || date == null) {
             LOG.info("order and date cannot be null. Impossible to schedule order");
             throw new ScheduleOrderException("Cannot schedule an Order, invalid datas");
@@ -84,6 +85,7 @@ public class OrderService {
         } else {
             LOG.info("Scheduling order id#{} at {}", orderId, date.toString());
             Order fromDb = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+            checkCanceled(fromDb);
             fromDb.setDateTime(date);
             fromDb.setStatus(OrderStatus.PENDING);
             return this.orderRepository.save(fromDb);
@@ -102,8 +104,18 @@ public class OrderService {
         throw new UnsupportedOperationException();
     }
     
-    public void cancelOrder() {
-        throw new UnsupportedOperationException();
+    /**
+     * Cancel (but not delete) an order.
+     * 
+     * @param orderId
+     * @see R6
+     * @since 1.0
+     */
+    public void cancelOrder(String orderId) {
+        LOG.info("Cancel order id#{}", orderId);
+        Order fromDb = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+        fromDb.setStatus(OrderStatus.CANCEL);
+        this.orderRepository.save(fromDb);        
     }
     
     /**
@@ -141,5 +153,17 @@ public class OrderService {
         }
         return true; // default if date is null
     }
-
+    
+    /**
+     * Support method for check if any operation are allowed.
+     * No operation on cancelled order!
+     * @param order 
+     */
+    private void checkCanceled(Order order) {
+        if (order.getStatus() != null && order.getStatus().equals(OrderStatus.CANCEL)) {
+            LOG.info("order id#{} is cancelled, no operation allowed", order.getId());
+            throw new OrderCancelledException("Order is cancelled, any operation forbidden.");
+        }
+    }
+    
 }

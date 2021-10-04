@@ -125,5 +125,29 @@ public class OrderControllerEndToEndTest {
         assertEquals(OrderStatus.PENDING, fromDb.getStatus()); 
         
     }
+    
+    @Test
+    public void cancelOrderTest() throws JSONException {
+
+        User homer = new User();
+        homer.setEmail("homer@email.com");
+        homer.setFirstName("homer");
+        homer.setLastName("Simpson");
+        homer.setMobileNumber("+66 666");
+        
+        Order order = new Order();
+        order.setLogisticInfo("Some logistic infos");
+        order.setTitle("very funny title");
+        order.setPhotoType(PhotoType.FOOD);
+        order.setStatus(OrderStatus.UNSCHEDULED);
+        homer.setOrder(order);        
+        this.orderRepository.save(order);        
+        assertEquals(1, this.orderRepository.count());      
+        given().log().all().pathParam("orderId", order.getId()).contentType(ContentType.JSON).expect().when().post("/manager/orders/{orderId}/cancel").then().assertThat().statusCode(200);
+
+        Order fromDb = this.orderRepository.findById(order.getId()).orElse(null);
+        assertEquals(OrderStatus.CANCEL, fromDb.getStatus()); 
+        
+    }
 
 }

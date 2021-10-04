@@ -4,6 +4,7 @@ import com.aegidea.photoshootingmanager.entity.Order;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.enums.PhotoType;
+import com.aegidea.photoshootingmanager.exception.OrderCancelledException;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
 import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
@@ -105,6 +106,15 @@ public class OrderServiceTest {
         Order unscheduled = this.orderService.createNewOrder(this.order);       
         this.orderService.scheduleOrder(unscheduled.getId(), notBusinessTime);           
     }
+        
+    @Test(expected=OrderCancelledException.class)
+    public void scheduleOrderCancelledTest() {
+        LocalDateTime businessTime =  LocalDateTime.of(2021, Month.MARCH, 4, 12, 0);
+        Order cancelled = this.orderService.createNewOrder(this.order); 
+        cancelled.setStatus(OrderStatus.CANCEL);
+        this.orderRepository.save(cancelled);
+        this.orderService.scheduleOrder(cancelled.getId(), businessTime);           
+    }
     
     @Test
     public void assignOrderToPhotographerTest() {
@@ -123,6 +133,10 @@ public class OrderServiceTest {
     
     @Test
     public void cancelOrderTest() {
+        Order created = this.orderService.createNewOrder(this.order);
+        this.orderService.cancelOrder(created.getId());
+        Order fromDb = this.orderRepository.findById(created.getId()).orElse(null);
+        assertEquals(OrderStatus.CANCEL, fromDb.getStatus());
         
     }
     
