@@ -63,7 +63,7 @@ public class OrderController {
     
     @Timed
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(path = "/orders/{orderId}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/orders/{orderId}", method = RequestMethod.POST)
     @ApiOperation(value = "Schedule order")
     @ApiResponses(value = {
         @ApiResponse(code = 400, message = "Invalid request or constraints not respected")

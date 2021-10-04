@@ -4,3 +4,4 @@ enumerated string non è performante
 evoluzione: diversi servizi, un utente può registrarsi ad un servizio specifico.
 
 
+init non è rest e non andrebbe fatto, meglio all'avvio dell'applicazione
