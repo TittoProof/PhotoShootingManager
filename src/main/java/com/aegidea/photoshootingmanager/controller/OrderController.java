@@ -90,5 +90,21 @@ public class OrderController {
         this.orderService.cancelOrder(orderId);
         
     }
+    
+    @Timed
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(path = "/orders/{orderId}/photographers/{photographerId}", method = RequestMethod.POST)
+    @ApiOperation(value = "assign an order to a specific photographer")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected")
+        ,
+        @ApiResponse(code = 200, message = "assigned")
+    })
+    public OrderDTO assignOrder(@PathVariable("orderId") String orderId, @PathVariable("photographerId") String photographerId) {
+        LOG.info("Start assignig order {} to photographer.", orderId, photographerId);
+        Order result = this.orderService.assignOrderToPhotographer(orderId, photographerId);
+        return this.modelMapper.map(result, OrderDTO.class);
+        
+    }
 
 }

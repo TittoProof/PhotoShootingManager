@@ -1,19 +1,24 @@
 package com.aegidea.photoshootingmanager.service;
 
 import com.aegidea.photoshootingmanager.entity.Order;
+import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.enums.PhotoType;
+import com.aegidea.photoshootingmanager.exception.AssignOrderException;
 import com.aegidea.photoshootingmanager.exception.OrderCancelledException;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
+import com.aegidea.photoshootingmanager.exception.PhotographerNotFoundException;
 import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
+import com.aegidea.photoshootingmanager.repository.PhotographerRepository;
 import com.aegidea.photoshootingmanager.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.Month;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +43,9 @@ public class OrderServiceTest {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PhotographerRepository photographerRepository;
     
     private User homer;
     
@@ -118,6 +126,29 @@ public class OrderServiceTest {
     
     @Test
     public void assignOrderToPhotographerTest() {
+        // creata an order
+        Order order = this.orderService.createNewOrder(this.order);
+        // create a photographer
+        Photographer ph = new Photographer();
+        ph.setName("Marge");
+        this.photographerRepository.save(ph);        
+        // assign order to photographer
+        Order assignedOrder = this.orderService.assignOrderToPhotographer(order.getId(), ph.getId());
+        assertEquals(OrderStatus.ASSIGNED, assignedOrder.getStatus());
+        assertNotNull(assignedOrder.getAssignedTo());
+        assertEquals(assignedOrder.getAssignedTo().getId(), ph.getId());       
+    }
+    
+    @Test(expected=AssignOrderException.class)
+    public void assignOrderToPhotographerEmptyTest() {
+        this.orderService.assignOrderToPhotographer("", null); 
+    }
+    
+    @Test(expected=PhotographerNotFoundException.class)
+    public void assignOrderToPhotographerNoPhotographerTest() {
+        // creata an order
+        Order order = this.orderService.createNewOrder(this.order);     
+        this.orderService.assignOrderToPhotographer(order.getId(), "666");
     
     }
     

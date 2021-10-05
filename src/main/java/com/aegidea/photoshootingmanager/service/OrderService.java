@@ -1,8 +1,10 @@
 package com.aegidea.photoshootingmanager.service;
 
 import com.aegidea.photoshootingmanager.entity.Order;
+import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
+import com.aegidea.photoshootingmanager.exception.AssignOrderException;
 import com.aegidea.photoshootingmanager.exception.OrderCancelledException;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
 import com.aegidea.photoshootingmanager.exception.OrderNotFoundException;
@@ -28,6 +30,9 @@ public class OrderService {
     
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private PhotographerService photographerService;
     
     /**
      * Create a new Order.
@@ -92,8 +97,32 @@ public class OrderService {
         }
     }
     
-    public void assignOrderToPhotographer() {
-        throw new UnsupportedOperationException();
+    /**
+     * 
+     * @param orderId
+     * @param photographerId
+     * @return 
+     * @see R3
+     * @since 1.0
+     */
+    @Transactional
+    public Order assignOrderToPhotographer(String orderId, String photographerId) {
+        if (!StringUtils.isBlank(orderId) && !StringUtils.isBlank(photographerId)) {
+            LOG.info("Assign order id#{} to photographer id#{}", orderId, photographerId);
+            Order order = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+            checkCanceled(order);
+            Photographer photographer = this.photographerService.findById(photographerId);
+            photographer.getOrders().add(order);
+            order.setAssignedTo(photographer);
+            order.setStatus(OrderStatus.ASSIGNED);
+            return this.orderRepository.save(order);
+           
+        } else {
+            LOG.info("OrderId and photographerId cannot be null. impossible to assign an order");
+            throw new AssignOrderException("Impossible to assign order, no input!");
+        }
+
+        
     }
     
     public Order uploadPhotosToOrder() {

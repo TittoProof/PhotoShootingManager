@@ -3,15 +3,19 @@ package com.aegidea.photoshootingmanager.controller;
 import com.aegidea.photoshootingmanager.configuration.Config;
 import com.aegidea.photoshootingmanager.dto.OrderDTO;
 import com.aegidea.photoshootingmanager.entity.Order;
+import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.enums.PhotoType;
 import com.aegidea.photoshootingmanager.repository.OrderRepository;
+import com.aegidea.photoshootingmanager.repository.PhotographerRepository;
 import com.aegidea.photoshootingmanager.repository.UserRepository;
 import com.jayway.restassured.RestAssured;
 import static com.jayway.restassured.RestAssured.given;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+import java.time.LocalDateTime;
+import java.time.Month;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
@@ -43,6 +47,9 @@ public class OrderControllerEndToEndTest {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PhotographerRepository photographerRepository;
         
     @Before
     public void setupClass() {       
@@ -53,6 +60,7 @@ public class OrderControllerEndToEndTest {
     public void tearDown() {
         this.userRepository.deleteAll();
         this.orderRepository.deleteAll();
+        this.photographerRepository.deleteAll();
     }
     
     @Test
@@ -148,6 +156,38 @@ public class OrderControllerEndToEndTest {
         Order fromDb = this.orderRepository.findById(order.getId()).orElse(null);
         assertEquals(OrderStatus.CANCEL, fromDb.getStatus()); 
         
+    }
+    
+    @Test
+    public void assignOrderTest() {
+        // prepare some data
+        
+        // create a photographer
+        Photographer ph = new Photographer();
+        ph.setName("Marge");
+        this.photographerRepository.save(ph);
+        // create order
+        User homer = new User();
+        homer.setEmail("homer@email.com");
+        homer.setFirstName("homer");
+        homer.setLastName("Simpson");
+        homer.setMobileNumber("+66 666");
+        
+        Order order = new Order();
+        order.setLogisticInfo("Some logistic infos");
+        order.setTitle("very funny title");
+        order.setPhotoType(PhotoType.FOOD);
+        order.setStatus(OrderStatus.UNSCHEDULED);
+        homer.setOrder(order);
+        
+        this.orderRepository.save(order);
+       
+
+        Response response = given().log().all().pathParam("orderId", order.getId()).pathParam("photographerId", ph.getId()).contentType(ContentType.JSON).expect().when().post("/manager/orders/{orderId}/photographers/{photographerId}").then().assertThat().statusCode(200).extract().response();
+        OrderDTO dto = response.as(OrderDTO.class);
+        assertEquals(OrderStatus.ASSIGNED, dto.getStatus());
+
+    
     }
 
 }

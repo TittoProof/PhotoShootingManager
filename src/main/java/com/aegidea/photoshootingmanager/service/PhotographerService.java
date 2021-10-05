@@ -1,6 +1,7 @@
 package com.aegidea.photoshootingmanager.service;
 
 import com.aegidea.photoshootingmanager.entity.Photographer;
+import com.aegidea.photoshootingmanager.exception.PhotographerNotFoundException;
 import com.aegidea.photoshootingmanager.repository.PhotographerRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,17 @@ public class PhotographerService {
             photographers.add(p);
         }
         return this.photographerRepository.saveAll(photographers);
+    }
+
+    /**
+     * @see R3
+     * @since 1.0
+     * @param photographerId
+     * @return 
+     */
+    Photographer findById(String photographerId) {
+        LOG.info("Find a phogographer by id with id#{}", photographerId);
+        return this.photographerRepository.findById(photographerId).orElseThrow(() -> new PhotographerNotFoundException("not Found"));
     }
 
 }
