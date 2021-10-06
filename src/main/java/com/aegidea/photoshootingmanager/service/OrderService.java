@@ -125,12 +125,36 @@ public class OrderService {
         
     }
     
-    public Order uploadPhotosToOrder() {
-        throw new UnsupportedOperationException();
+    /**
+     * Very easy version, we ignore the upload of the Zip file.
+     * here should be uploaded on S3 services maybe.
+     * 
+     * @param orderId
+     * @see R4
+     * @since 1.0
+     * @return 
+     */
+    @Transactional
+    public String uploadPhotosToOrder(String orderId) {
+        if (!StringUtils.isBlank(orderId)) {
+            LOG.info("Upload zip to order id#{} ", orderId);
+            if (this.orderRepository.existsById(orderId)) {
+                Order order = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+                checkCanceled(order);
+                this.orderRepository.updateOrderStatus(orderId, OrderStatus.UPLOADED);
+                return order.getId();
+            } else {
+                throw new OrderNotFoundException("Order not found!");
+            }
+        } else {
+            LOG.info("OrderId cannot be null. impossible to upload a zip to an order");
+            throw new OrderNotFoundException("Impossible to upload, no input!");
+        }
     }
     
     public Order verifyOrder() {
         throw new UnsupportedOperationException();
+        
     }
     
     /**
@@ -140,11 +164,14 @@ public class OrderService {
      * @see R6
      * @since 1.0
      */
+    @Transactional
     public void cancelOrder(String orderId) {
         LOG.info("Cancel order id#{}", orderId);
-        Order fromDb = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
-        fromDb.setStatus(OrderStatus.CANCEL);
-        this.orderRepository.save(fromDb);        
+        if(this.orderRepository.existsById(orderId)) {
+            this.orderRepository.updateOrderStatus(orderId, OrderStatus.CANCEL);
+        } else {
+            throw new OrderNotFoundException("Order not found!");
+        }      
     }
     
     /**
@@ -193,6 +220,20 @@ public class OrderService {
             LOG.info("order id#{} is cancelled, no operation allowed", order.getId());
             throw new OrderCancelledException("Order is cancelled, any operation forbidden.");
         }
+    }
+    
+    /**
+     * This is a more performant way for update just the status of an order.
+     * 
+     * @see R0
+     * @since 1.0
+     * @param orderId
+     * @param orderStatus 
+     */
+    @Transactional
+    public int updateStatusOrder(String orderId, OrderStatus orderStatus) {
+        LOG.info("updating status {} for order id#{}", orderStatus, orderId);
+        return this.orderRepository.updateOrderStatus(orderId, orderStatus);
     }
     
 }

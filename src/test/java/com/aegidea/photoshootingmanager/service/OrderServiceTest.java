@@ -15,6 +15,7 @@ import com.aegidea.photoshootingmanager.repository.PhotographerRepository;
 import com.aegidea.photoshootingmanager.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.Month;
+import javax.transaction.Transactional;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -126,7 +127,7 @@ public class OrderServiceTest {
     
     @Test
     public void assignOrderToPhotographerTest() {
-        // creata an order
+        // create an order
         Order order = this.orderService.createNewOrder(this.order);
         // create a photographer
         Photographer ph = new Photographer();
@@ -146,7 +147,7 @@ public class OrderServiceTest {
     
     @Test(expected=PhotographerNotFoundException.class)
     public void assignOrderToPhotographerNoPhotographerTest() {
-        // creata an order
+        // create an order
         Order order = this.orderService.createNewOrder(this.order);     
         this.orderService.assignOrderToPhotographer(order.getId(), "666");
     
@@ -154,7 +155,11 @@ public class OrderServiceTest {
     
     @Test
     public void uploadOrderTest() {
-        
+        // create an order
+        Order order = this.orderService.createNewOrder(this.order);      
+        this.orderService.uploadPhotosToOrder(order.getId());       
+        Order fromDb = this.orderRepository.findById(order.getId()).orElse(null);
+        assertEquals(OrderStatus.UPLOADED, fromDb.getStatus());
     }
     
     @Test
@@ -169,6 +174,14 @@ public class OrderServiceTest {
         Order fromDb = this.orderRepository.findById(created.getId()).orElse(null);
         assertEquals(OrderStatus.CANCEL, fromDb.getStatus());
         
+    }
+    
+    @Test
+    public void updateStatusTest() {
+        Order created = this.orderService.createNewOrder(this.order);
+        this.orderService.updateStatusOrder(created.getId(), OrderStatus.UNSCHEDULED);
+        Order fromDb = this.orderRepository.findById(created.getId()).orElse(null);
+        assertEquals(OrderStatus.UNSCHEDULED, fromDb.getStatus());
     }
     
     @Test

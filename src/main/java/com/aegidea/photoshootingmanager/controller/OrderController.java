@@ -24,8 +24,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -104,6 +106,23 @@ public class OrderController {
         LOG.info("Start assignig order {} to photographer.", orderId, photographerId);
         Order result = this.orderService.assignOrderToPhotographer(orderId, photographerId);
         return this.modelMapper.map(result, OrderDTO.class);
+        
+    }
+    
+    @Timed
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/orders/{orderId}/upload", method = RequestMethod.POST)
+    @ApiOperation(value = "Upload a zip file for an Order")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected")
+        ,
+        @ApiResponse(code = 202, message = "accepted")
+    })
+    public String uploadZipFile(@PathVariable("orderId") String orderId, @RequestParam("file") MultipartFile file) {
+        LOG.info("Start uploading zip file for order {} ", orderId);
+        LOG.debug("File {} uploaded!", file.getName()); // here just for debugging purpose
+        String idOfTheResult = this.orderService.uploadPhotosToOrder(orderId);
+        return idOfTheResult;
         
     }
 
