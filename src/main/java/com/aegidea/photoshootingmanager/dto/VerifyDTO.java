@@ -11,16 +11,16 @@ import javax.validation.constraints.NotNull;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel
-public class verifyDTO {
+public class VerifyDTO {
     
     @NotNull
     @ApiModelProperty(notes="Order is accepted?", example="true", required=true)
     private boolean isApproved;
 
-    public verifyDTO() {
+    public VerifyDTO() {
     }
 
-    public boolean isIsApproved() {
+    public boolean getIsApproved() {
         return isApproved;
     }
 

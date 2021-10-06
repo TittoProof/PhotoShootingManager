@@ -4,6 +4,7 @@ import com.aegidea.photoshootingmanager.dto.CreateOrderDTO;
 import com.aegidea.photoshootingmanager.dto.OrderDTO;
 import com.aegidea.photoshootingmanager.dto.PhotographerDTO;
 import com.aegidea.photoshootingmanager.dto.ScheduleOrderDTO;
+import com.aegidea.photoshootingmanager.dto.VerifyDTO;
 import com.aegidea.photoshootingmanager.entity.Order;
 import com.aegidea.photoshootingmanager.entity.Photographer;
 import com.aegidea.photoshootingmanager.service.OrderService;
@@ -124,6 +125,20 @@ public class OrderController {
         String idOfTheResult = this.orderService.uploadPhotosToOrder(orderId);
         return idOfTheResult;
         
+    }
+    
+    @Timed
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(path = "/orders/{orderId}/verify", method = RequestMethod.POST)
+    @ApiOperation(value = "verify an Order")
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "Invalid request or constraints not respected")
+        ,
+        @ApiResponse(code = 200, message = "accepted")
+    })
+    public void uploadZipFile(@PathVariable("orderId") String orderId, @Valid @RequestBody VerifyDTO verify) {
+        LOG.info("Start verify order id#{} ", orderId);
+        this.orderService.verifyOrder(orderId, verify.getIsApproved()); 
     }
 
 }
