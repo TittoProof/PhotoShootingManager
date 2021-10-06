@@ -1,0 +1,21 @@
+Alcune considerazioni:
+
+- enumerated string non è performante, almeno rispetto a degli enumerated con gli interi. L'ho messo perchè a volte è utile per ispezionare il db (non è questo il caso)
+
+- evoluzione: sarebbe interessante inserire il concetto di servizi, un fotografo può registrarsi ad un servizio specifico ed iniziare ad usare le proprietà annesse a quel servizio.
+in questa demo si può fare facilmente associando un serviceId ai fotografi (o utenti finali)
+
+- init non è rest compliant e non andrebbe fatto, meglio popolare l'applicazione al boot.
+
+- con i requirement forniti non è possibile recuperare gli ordini per sapere gli ID. Avrei potuto ritornarli semplicemente nella risposta. ma non ritengo sia opportuno esporre id se non richiesti. magari meglio usare un servizio dedicato che recupera gli ordini.
+
+- per i test mi sono accorto che fare una factory che creasse ordini parametrizzati sarebbe stato comodo.
+
+- anche se non richiesto ho inserito swagger. Lo trovo piu comodo per testare gli endpoint invece che REST client classici (avrei potuto mandare una postman collection, ma non è scontato che la usiate)
+
+- non ho dato per scontato nemmeno la versione di Java, quindi il pom e il progetto li ho impostati e compilati con java 8. Tuttavia ho testato anche openjdk 11 e funziona.
+
+- anche se non richiesto ho inserito degli actuator. ritengo sia buona pratica inserire un qualche meccanismo per monitorare le performance. (avrei potuto usare java melody, ma spring fornisce gia qualcosa)
+
+- altri piccoli commenti a voce.
+
