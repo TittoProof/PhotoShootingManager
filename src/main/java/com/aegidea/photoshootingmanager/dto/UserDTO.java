@@ -2,6 +2,7 @@ package com.aegidea.photoshootingmanager.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
@@ -14,16 +15,20 @@ import javax.validation.constraints.NotNull;
 public class UserDTO {
 
     @NotNull
+    @ApiModelProperty(notes="the name of the contact", example="Homer", required=true)
     private String firstName;
     
     @NotNull
+    @ApiModelProperty(notes="The surname of the contact", example="Simpson", required=true)
     private String lastName;
     
     @Email
     @NotNull
+    @ApiModelProperty(notes="the email of the contact", example="homer@gmail.com", required=true)
     private String email;
     
     @NotNull
+    @ApiModelProperty(notes="the mobile of the contact", example="+39666", required=true)
     private String mobileNumber;
 
     public UserDTO() {

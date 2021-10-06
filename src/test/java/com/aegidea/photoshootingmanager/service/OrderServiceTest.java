@@ -164,6 +164,14 @@ public class OrderServiceTest {
     
     @Test
     public void verifyOrderTest() {
+        Order order = this.orderService.createNewOrder(this.order); 
+        order.setStatus(OrderStatus.UPLOADED);
+        this.orderRepository.save(order);
+        
+        this.orderService.verifyOrder(order.getId(), true);
+        
+        Order fromDb = this.orderRepository.findById(order.getId()).orElse(null);
+        assertEquals(OrderStatus.COMPLETED, fromDb.getStatus());
         
     }
     

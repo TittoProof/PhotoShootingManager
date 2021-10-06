@@ -6,6 +6,7 @@ import com.aegidea.photoshootingmanager.entity.User;
 import com.aegidea.photoshootingmanager.enums.OrderStatus;
 import com.aegidea.photoshootingmanager.exception.AssignOrderException;
 import com.aegidea.photoshootingmanager.exception.OrderCancelledException;
+import com.aegidea.photoshootingmanager.exception.OrderCannotVerifiedException;
 import com.aegidea.photoshootingmanager.exception.OrderCreationException;
 import com.aegidea.photoshootingmanager.exception.OrderNotFoundException;
 import com.aegidea.photoshootingmanager.exception.ScheduleOrderException;
@@ -152,8 +153,41 @@ public class OrderService {
         }
     }
     
-    public Order verifyOrder() {
-        throw new UnsupportedOperationException();
+    /**
+     * Approve or reject an order.
+     * 
+     * @see R5
+     * @since 1.0
+     * @param orderId
+     * @param isApproved
+     * @return 
+     */
+    @Transactional
+    public Order verifyOrder(String orderId, boolean isApproved) {
+        if (!StringUtils.isBlank(orderId)) {
+            LOG.info("Verify order id#{} ", orderId);
+            if (this.orderRepository.existsById(orderId)) {
+                Order order = this.orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found!"));
+                checkCanceled(order);
+                if (!order.getStatus().equals(OrderStatus.UPLOADED)) {
+                    LOG.info("Impossible to verify order {}, only UPLOADED orders can be approved, but status#{}", orderId, order.getStatus());
+                    throw new OrderCannotVerifiedException("Only PENDING orders can be approved or rejected");
+                }
+                if(isApproved) {
+                    this.orderRepository.updateOrderStatus(orderId, OrderStatus.COMPLETED);
+                    order.setStatus(OrderStatus.COMPLETED);
+                } else {
+                    this.orderRepository.updateOrderStatus(orderId, OrderStatus.ASSIGNED);
+                    order.setStatus(OrderStatus.ASSIGNED);
+                }
+                return order;
+            } else {
+                throw new OrderNotFoundException("Order not found!");
+            }
+        } else {
+            LOG.info("OrderId cannot be null. impossible to upload a zip to an order");
+            throw new OrderNotFoundException("Impossible to upload, no input!");
+        }
         
     }
     
